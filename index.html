@@ -3,30 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Twisted Whiskers Fix</title>
+    <title>Twisted Whiskers - GitHub Pages Edition</title>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
         body { margin: 0; background: #111; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; overflow: hidden; }
+        
         #arena { width: 1000px; height: 600px; background: linear-gradient(to bottom, #1a0033, #4d004d); border: 6px solid #ff0055; position: relative; overflow: hidden; }
         #chao { position: absolute; bottom: 0; width: 100%; height: 60px; background: #222; border-top: 4px solid #ff0055; z-index: 5; }
         
-        /* HUD */
+        /* HUD / Barras de Vida */
         .hud { position: absolute; top: 20px; left: 5%; width: 90%; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
         .barra-container { width: 40%; height: 30px; background: #333; border: 2px solid #fff; }
         .barra { width: 100%; height: 100%; background: #ff0055; transition: width 0.1s; }
         .cronometro { font-size: 36px; color: #fff; background: #000; padding: 5px 15px; border: 2px solid #ff0055; font-weight: bold; }
 
-        /* Posição Perfeita dos Lutadores */
-        .lutador { width: 200px; height: 230px; position: absolute; background-size: contain; background-repeat: no-repeat; background-position: bottom center; bottom: 60px; z-index: 6; }
-        #p1 { background-image: url('cutie_snoot.png'); }
-        #p2 { background-image: url('yawp.png'); transform: scaleX(-1); }
+        /* Posição dos Lutadores (Patas travadas em cima do chão) */
+        .lutador { 
+            width: 200px; 
+            height: 230px; 
+            position: absolute; 
+            background-size: contain; 
+            background-repeat: no-repeat; 
+            background-position: bottom center; 
+            bottom: 60px; /* Alinhado perfeitamente no chão */
+            z-index: 6; 
+        }
+        
+        /* Links de imagens online direto de servidores públicos para não quebrar no GitHub */
+        #p1 { background-image: url('https://uncyc.org'); }
+        #p2 { background-image: url('https://uncyc.org'); transform: scaleX(-1); }
 
-        /* Animações */
+        /* Animações e Efeitos */
         .atacando-p1 { transform: scale(1.1) rotate(15deg) !important; }
         .atacando-p2 { transform: scaleX(-1) scale(1.1) rotate(-15deg) !important; }
         .apanhando { filter: brightness(3) sepia(1); }
 
-        /* Controles Virtuais */
+        /* Botões de Clique e Toque na Tela */
         #botoes { position: absolute; bottom: 80px; left: 5%; width: 90%; display: flex; justify-content: space-between; z-index: 50; }
         .btn { width: 70px; height: 70px; background: rgba(255,255,255,0.2); border: 3px solid #fff; border-radius: 50%; color: #fff; font-size: 26px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
         .btn:active { background: #ff0055; }
@@ -66,7 +78,7 @@
         let j2 = { x: 700, y: 0, vY: 0, chao: true, vida: 100, atq: false };
         let tempo = 99, ativo = true; const tcl = {};
 
-        // Sistema de cliques e toques corrigido
+        // Ativa botões por Clique ou Toque
         function addBtn(id, acao) {
             const b = document.getElementById(id);
             b.addEventListener('mousedown', () => tcl[acao] = true);
@@ -94,7 +106,7 @@
             setTimeout(() => { elA.classList.remove(classe); atacante.atq = false; checarFim(); }, 200);
         }
 
-        // Loop de física e posições estáveis no chão
+        // Loop de física principal
         function loop() {
             if (!ativo) return;
             if (tcl['a'] && j1.x > 0) j1.x -= CFG.vel;
@@ -102,7 +114,7 @@
             j1.vY += CFG.grav; j1.y += j1.vY;
             if (j1.y >= 0) { j1.y = 0; j1.vY = 0; j1.chao = true; }
 
-            // IA simples do Yawp (P2)
+            // Inteligência Artificial do Cachorro Yawp
             if (j2.x > j1.x + 130) j2.x -= CFG.vel * 0.45;
             else if (j2.x < j1.x - 130) j2.x += CFG.vel * 0.45;
             if (Math.abs(j1.x - j2.x) < 150 && !j2.atq && Math.random() < 0.03) bater('p2', j2, j1, 'atacando-p2');
@@ -110,13 +122,13 @@
             j2.vY += CFG.grav; j2.y += j2.vY;
             if (j2.y >= 0) { j2.y = 0; j2.vY = 0; j2.chao = true; }
 
-            // Renderização corrigida: patas coladas na base 60px
+            // Renderiza as posições direto no chão (Base de 60px)
             p1.style.left = j1.x + 'px'; p1.style.bottom = (CFG.chão - j1.y) + 'px';
             p2.style.left = j2.x + 'px'; p2.style.bottom = (CFG.chão - j2.y) + 'px';
             requestAnimationFrame(loop);
         }
 
-        // Cronômetro (Timer) corrigido e funcional
+        // CORREÇÃO: Cronômetro isolado funcionando perfeitamente
         const rodarTimer = setInterval(() => {
             if (!ativo) return;
             tempo--; elTimer.innerText = tempo;
@@ -126,8 +138,8 @@
         function checarFim(fimTempo = false) {
             if (j1.vida <= 0 || j2.vida <= 0 || fimTempo) {
                 ativo = false; clearInterval(rodarTimer);
-                alert(j1.vida === j2.vida ? "EMPATE!" : (j1.vida > j2.vida ? "CUTIE SNOOT VENCEU!" : "YAWP VENCEU!"));
-                location.reload(); // Reinicia o jogo de forma limpa
+                alert(j1.vida === j2.vida ? "EMPATE!" : (j1.vida > j2.vida ? "CUTIE SNOOT VENCEU!" : "YAWP VENCEU!"))
+                location.reload(); // Reinicia a página limpando o jogo de forma segura
             }
         }
 
@@ -135,5 +147,3 @@
     </script>
 </body>
 </html>
-
-
